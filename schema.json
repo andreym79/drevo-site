@@ -767,6 +767,17 @@
      "label": "Подзаголовок",
      "type": "textarea",
      "max": 400
+    },
+    {
+     "key": "photo",
+     "label": "Фото справа (необязательно)",
+     "type": "image"
+    },
+    {
+     "key": "photo_alt",
+     "label": "Описание фото",
+     "type": "text",
+     "max": 250
     }
    ]
   },

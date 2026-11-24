@@ -404,10 +404,16 @@ RENDERERS = {
 
 def page_intro(d, img):
     sub = f'<p style="margin: 0; font-size: 20px; color: #D6DCEA; max-width: 720px">{e(d["subtitle"])}</p>' if g(d, "subtitle") else ""
+    photo = ""
+    if g(d, "photo"):
+        photo = f'<div class="hero-photo" style="flex: 1 1 340px; min-width: 0; height: 360px; border-radius: 28px; overflow: hidden; background: #2C3D63"><img src="{e(img(d["photo"]))}" alt="{e(g(d, "photo_alt"))}" style="width: 100%; height: 100%; object-fit: cover; object-position: center 40%; display: block"></div>'
     return f"""<section style="background: #1B2A4A; color: #FFFFFF">
-<div style="max-width: 1200px; margin: 0 auto; padding: 64px 24px; display: flex; flex-direction: column; gap: 16px">
+<div style="max-width: 1200px; margin: 0 auto; padding: 64px 24px; display: flex; flex-wrap: wrap; gap: 48px; align-items: center">
+<div style="flex: 999 1 460px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
 <h1 style="margin: 0; font-size: 48px; line-height: 1.15; font-weight: 800; letter-spacing: -0.02em">{e(g(d, "title"))}</h1>
 {sub}
+</div>
+{photo}
 </div>
 </section>"""
 
