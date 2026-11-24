@@ -28,7 +28,7 @@ blocks = [
          f("cta_label", "Кнопка в шапке: текст", max=60),
          f("cta_url", "Кнопка в шапке: ссылка", "url"),
      ]},
-    {"type": "hero", "label": "Первый экран", "max": 1,
+    {"type": "hero", "label": "Первый экран",
      "fields": [
          f("badge", "Плашка над заголовком", max=120),
          f("title", "Заголовок", "textarea", required=True, max=200),
@@ -42,13 +42,13 @@ blocks = [
          f("photo_alt", "Описание фото (для поисковиков и незрячих)", max=250),
          lst("trust", "Полоса доверия внизу", "Пункт", [f("text", "Текст", required=True, max=100)], maxItems=6),
      ]},
-    {"type": "pains", "label": "Знакомо?", "max": 1,
+    {"type": "pains", "label": "Знакомо?",
      "fields": [
          f("title", "Заголовок", required=True, max=120),
          lst("items", "Карточки", "Карточка", [f("text", "Текст", "textarea", required=True, max=300)], maxItems=10),
          f("conclusion", "Вывод под карточками", "textarea", max=400),
      ]},
-    {"type": "compare", "label": "Компаньон — это не сиделка", "max": 1,
+    {"type": "compare", "label": "Компаньон — это не сиделка",
      "fields": [
          f("title", "Заголовок", required=True, max=120),
          f("yes_title", "Левая карточка: заголовок", max=100),
@@ -60,7 +60,7 @@ blocks = [
          f("tip_btn_label", "Тёмная плашка: кнопка", max=60),
          f("tip_btn_url", "Тёмная плашка: ссылка", "url"),
      ]},
-    {"type": "services", "label": "Чем помогает компаньон", "max": 1,
+    {"type": "services", "label": "Чем помогает компаньон",
      "fields": [
          f("title", "Заголовок", required=True, max=120),
          f("subtitle", "Подзаголовок", "textarea", max=300),
@@ -70,13 +70,13 @@ blocks = [
              f("text", "Описание", "textarea", max=300),
          ], maxItems=12),
      ]},
-    {"type": "steps", "label": "Как это работает", "max": 1,
+    {"type": "steps", "label": "Как это работает",
      "fields": [
          f("title", "Заголовок", required=True, max=120),
          lst("items", "Шаги", "Шаг", [f("title", "Название", required=True, max=100), f("text", "Описание", "textarea", max=300)], maxItems=8,
              help="Номера проставляются сами"),
      ]},
-    {"type": "coordinator", "label": "Координатор", "max": 1,
+    {"type": "coordinator", "label": "Координатор",
      "fields": [
          f("photo", "Фото", "image", help="Вертикальное, лучше от 800 px"),
          f("photo_alt", "Описание фото", max=250),
@@ -86,20 +86,20 @@ blocks = [
              f("text", "Текст", "textarea", required=True, max=400),
          ], maxItems=10),
      ]},
-    {"type": "selection", "label": "Как мы подбираем компаньонов", "max": 1,
+    {"type": "selection", "label": "Как мы подбираем компаньонов",
      "fields": [
          f("title", "Заголовок", required=True, max=120),
          f("subtitle", "Подзаголовок", max=200),
          lst("items", "Карточки", "Карточка", [f("title", "Название", required=True, max=100), f("text", "Описание", "textarea", max=300)], maxItems=12),
      ]},
-    {"type": "payment", "label": "Оплата", "max": 1,
+    {"type": "payment", "label": "Оплата",
      "fields": [
          f("title", "Заголовок", required=True, max=120),
          lst("bullets", "Пункты", "Пункт", [f("text", "Текст", "textarea", required=True, max=300)], maxItems=8),
          lst("currencies", "Валюты (плитки)", "Плитка", [f("text", "Знак или слово", required=True, max=30)], maxItems=8,
              help="Короткие знаки (₪ € $) показываются крупно, слова — мельче"),
      ]},
-    {"type": "prices", "label": "Тарифы", "max": 1,
+    {"type": "prices", "label": "Тарифы",
      "fields": [
          f("title", "Заголовок", required=True, max=120),
          f("subtitle", "Подзаголовок", "textarea", max=400),
@@ -114,7 +114,7 @@ blocks = [
          f("btn2_label", "Вторая кнопка: текст", max=60),
          f("btn2_url", "Вторая кнопка: ссылка", "url"),
      ]},
-    {"type": "stories", "label": "Истории семей", "max": 1,
+    {"type": "stories", "label": "Истории семей",
      "fields": [
          f("title", "Заголовок", required=True, max=120),
          f("subtitle", "Подзаголовок", "textarea", max=300),
@@ -127,7 +127,7 @@ blocks = [
              f("caption", "Подпись", "textarea", max=300),
          ], maxItems=10),
      ]},
-    {"type": "faq", "label": "Частые вопросы", "max": 1,
+    {"type": "faq", "label": "Частые вопросы",
      "fields": [
          f("title", "Заголовок", required=True, max=120),
          lst("items", "Вопросы", "Вопрос", [
@@ -136,7 +136,7 @@ blocks = [
              f("open", "Раскрыт сразу", "boolean"),
          ], maxItems=30),
      ]},
-    {"type": "contacts", "label": "Контакты", "max": 1,
+    {"type": "contacts", "label": "Контакты",
      "fields": [
          f("title", "Заголовок", "textarea", required=True, max=200),
          f("text", "Текст под заголовком", "textarea", max=300),
@@ -148,6 +148,25 @@ blocks = [
          f("qr_image", "QR-код", "image"),
          f("qr_alt", "Описание QR-кода", max=200),
          f("qr_text", "Текст рядом с QR-кодом", "textarea", max=200),
+     ]},
+    {"type": "page_intro", "label": "Заголовок страницы (тёмная полоса)",
+     "help": "Крупный заголовок вверху внутренней страницы.",
+     "fields": [
+         f("title", "Заголовок", required=True, max=150),
+         f("subtitle", "Подзаголовок", "textarea", max=400),
+     ]},
+    {"type": "text", "label": "Текст",
+     "help": "Абзацы разделяйте пустой строкой. Строка «## Заголовок» — подзаголовок. Строки, начинающиеся с «- », — список.",
+     "fields": [
+         f("title", "Заголовок", max=150),
+         f("body", "Текст", "textarea", required=True, max=20000),
+     ]},
+    {"type": "page", "label": "Новая страница (начало)",
+     "help": "Всё, что стоит НИЖЕ этого блока (до следующего блока «Новая страница» или подвала), попадает на отдельную страницу. Шапка и подвал общие.",
+     "fields": [
+         f("slug", "Адрес страницы (латиница, цифры, дефис)", required=True, max=60, help="Например tarify — страница будет по адресу drevo-zhizny.ru/tarify/"),
+         f("page_title", "Заголовок страницы (вкладка браузера и поиск)", required=True, max=200),
+         f("page_description", "Описание страницы для поиска", "textarea", max=400),
      ]},
     {"type": "footer", "label": "Подвал", "max": 1, "pin": "bottom",
      "fields": [

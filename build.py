@@ -3,6 +3,7 @@
 Использование как модуль: build.render(content, resolve_image) -> str
 resolve_image(значение_поля) -> путь к файлу картинки на сайте.
 """
+import re
 from html import escape
 
 
@@ -400,10 +401,115 @@ RENDERERS = {
 }
 
 
-def render(content, resolve_image=lambda v: v):
-    blocks = [b for b in content.get("blocks", []) if not b.get("hidden") and b.get("type") in RENDERERS]
-    head = next((b["data"] for b in blocks if b["type"] == "header"), {})
-    parts = [HEAD.format(title=e(g(head, "page_title") or g(head, "brand")), description=e(g(head, "page_description")))]
+
+def page_intro(d, img):
+    sub = f'<p style="margin: 0; font-size: 20px; color: #D6DCEA; max-width: 720px">{e(d["subtitle"])}</p>' if g(d, "subtitle") else ""
+    return f"""<section style="background: #1B2A4A; color: #FFFFFF">
+<div style="max-width: 1200px; margin: 0 auto; padding: 64px 24px; display: flex; flex-direction: column; gap: 16px">
+<h1 style="margin: 0; font-size: 48px; line-height: 1.15; font-weight: 800; letter-spacing: -0.02em">{e(g(d, "title"))}</h1>
+{sub}
+</div>
+</section>"""
+
+
+def rich_text(body):
+    """Абзацы — через пустую строку; «## » — подзаголовок; строки с «- » — маркированный список."""
+    out = []
+    for para in re.split(r"\n\s*\n", (body or "").strip()):
+        lines = [x.strip() for x in para.split("\n") if x.strip()]
+        if not lines:
+            continue
+        if len(lines) == 1 and lines[0].startswith("## "):
+            out.append(f'<h3 style="margin: 16px 0 0; font-size: 26px; line-height: 1.3; color: #1B2A4A">{e(lines[0][3:])}</h3>')
+        elif all(x.startswith("- ") for x in lines):
+            li = "".join(f"<li>{e(x[2:])}</li>" for x in lines)
+            out.append(f'<ul style="margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 8px">{li}</ul>')
+        else:
+            out.append(f'<p style="margin: 0; color: #3A4256">{"<br>".join(e(x) for x in lines)}</p>')
+    return "\n".join(out)
+
+
+def text_block(d, img):
+    title = f'<h2 style="margin: 0; font-size: 40px; line-height: 1.2; font-weight: 800; color: #1B2A4A">{e(d["title"])}</h2>' if g(d, "title") else ""
+    return f"""<section>
+<div style="max-width: 900px; margin: 0 auto; padding: 64px 24px; display: flex; flex-direction: column; gap: 20px">
+{title}
+{rich_text(g(d, "body"))}
+</div>
+</section>"""
+
+
+RENDERERS.update({"page_intro": page_intro, "text": text_block})
+
+SLUG = re.compile(r"^[a-z0-9][a-z0-9-]{0,59}$")
+RESERVED = {"images", "assets", "static"}
+ANCHORS = ("how", "prices", "faq", "contacts")
+
+
+def _fix_anchor_links(value, key=""):
+    """На внутренних страницах ссылки вида «#prices» должны вести на главную: «/#prices»."""
+    if isinstance(value, dict):
+        return {k: _fix_anchor_links(v, k) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_fix_anchor_links(v, key) for v in value]
+    if isinstance(value, str) and key.endswith("url") and re.fullmatch(r"#[A-Za-z0-9_-]+", value):
+        return "/" + value
+    return value
+
+
+def _dedupe_ids(html):
+    for a in ANCHORS:
+        needle = f' id="{a}"'
+        first = html.find(needle)
+        if first >= 0:
+            cut = first + len(needle)
+            html = html[:cut] + html[cut:].replace(needle, "")
+    return html
+
+
+def _page_html(head_data, header_block, footer_block, blocks, img, is_main):
+    def data(b):
+        d = b.get("data") or {}
+        return d if is_main else _fix_anchor_links(d)
+    parts = [HEAD.format(title=e(g(head_data, "page_title") or g(head_data, "brand")), description=e(g(head_data, "page_description")))]
+    if header_block:
+        parts.append(header(data(header_block), img))
     for b in blocks:
-        parts.append(RENDERERS[b["type"]](b.get("data") or {}, resolve_image))
-    return "\n\n".join(parts) + TAIL
+        parts.append(RENDERERS[b["type"]](data(b), img))
+    if footer_block:
+        parts.append(footer(data(footer_block), img))
+    return _dedupe_ids("\n\n".join(parts)) + TAIL
+
+
+def render_site(content, resolve_image=lambda v: v):
+    """Возвращает {путь: html}: "" — главная страница, "tarify" — страница /tarify/ и т. д."""
+    all_blocks = [b for b in content.get("blocks", []) if b.get("type") in RENDERERS or b.get("type") == "page"]
+    header_block = next((b for b in all_blocks if b["type"] == "header" and not b.get("hidden")), None)
+    footer_block = next((b for b in all_blocks if b["type"] == "footer" and not b.get("hidden")), None)
+    head_main = (header_block or {}).get("data") or {}
+
+    groups = [{"slug": "", "meta": head_main, "hidden": False, "blocks": []}]
+    for b in all_blocks:
+        if b["type"] in ("header", "footer"):
+            continue
+        if b["type"] == "page":
+            d = b.get("data") or {}
+            groups.append({"slug": g(d, "slug").strip().strip("/").lower(), "meta": d, "hidden": bool(b.get("hidden")), "blocks": []})
+        elif not b.get("hidden"):
+            groups[-1]["blocks"].append(b)
+
+    pages, seen = {}, set()
+    for grp in groups:
+        slug = grp["slug"]
+        if grp["hidden"] or slug in seen:
+            continue
+        if slug and (not SLUG.match(slug) or slug in RESERVED):
+            continue
+        seen.add(slug)
+        pages[slug] = _page_html(grp["meta"], header_block, footer_block, grp["blocks"], resolve_image, slug == "")
+    return pages
+
+
+def render(content, resolve_image=lambda v: v):
+    """Главная страница."""
+    return render_site(content, resolve_image)[""]

@@ -83,7 +83,6 @@
   {
    "type": "hero",
    "label": "Первый экран",
-   "max": 1,
    "fields": [
     {
      "key": "badge",
@@ -165,7 +164,6 @@
   {
    "type": "pains",
    "label": "Знакомо?",
-   "max": 1,
    "fields": [
     {
      "key": "title",
@@ -201,7 +199,6 @@
   {
    "type": "compare",
    "label": "Компаньон — это не сиделка",
-   "max": 1,
    "fields": [
     {
      "key": "title",
@@ -282,7 +279,6 @@
   {
    "type": "services",
    "label": "Чем помогает компаньон",
-   "max": 1,
    "fields": [
     {
      "key": "title",
@@ -339,7 +335,6 @@
   {
    "type": "steps",
    "label": "Как это работает",
-   "max": 1,
    "fields": [
     {
      "key": "title",
@@ -376,7 +371,6 @@
   {
    "type": "coordinator",
    "label": "Координатор",
-   "max": 1,
    "fields": [
     {
      "key": "photo",
@@ -424,7 +418,6 @@
   {
    "type": "selection",
    "label": "Как мы подбираем компаньонов",
-   "max": 1,
    "fields": [
     {
      "key": "title",
@@ -466,7 +459,6 @@
   {
    "type": "payment",
    "label": "Оплата",
-   "max": 1,
    "fields": [
     {
      "key": "title",
@@ -513,7 +505,6 @@
   {
    "type": "prices",
    "label": "Тарифы",
-   "max": 1,
    "fields": [
     {
      "key": "title",
@@ -590,7 +581,6 @@
   {
    "type": "stories",
    "label": "Истории семей",
-   "max": 1,
    "fields": [
     {
      "key": "title",
@@ -654,7 +644,6 @@
   {
    "type": "faq",
    "label": "Частые вопросы",
-   "max": 1,
    "fields": [
     {
      "key": "title",
@@ -696,7 +685,6 @@
   {
    "type": "contacts",
    "label": "Контакты",
-   "max": 1,
    "fields": [
     {
      "key": "title",
@@ -759,6 +747,74 @@
      "label": "Текст рядом с QR-кодом",
      "type": "textarea",
      "max": 200
+    }
+   ]
+  },
+  {
+   "type": "page_intro",
+   "label": "Заголовок страницы (тёмная полоса)",
+   "help": "Крупный заголовок вверху внутренней страницы.",
+   "fields": [
+    {
+     "key": "title",
+     "label": "Заголовок",
+     "type": "text",
+     "required": true,
+     "max": 150
+    },
+    {
+     "key": "subtitle",
+     "label": "Подзаголовок",
+     "type": "textarea",
+     "max": 400
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "label": "Текст",
+   "help": "Абзацы разделяйте пустой строкой. Строка «## Заголовок» — подзаголовок. Строки, начинающиеся с «- », — список.",
+   "fields": [
+    {
+     "key": "title",
+     "label": "Заголовок",
+     "type": "text",
+     "max": 150
+    },
+    {
+     "key": "body",
+     "label": "Текст",
+     "type": "textarea",
+     "required": true,
+     "max": 20000
+    }
+   ]
+  },
+  {
+   "type": "page",
+   "label": "Новая страница (начало)",
+   "help": "Всё, что стоит НИЖЕ этого блока (до следующего блока «Новая страница» или подвала), попадает на отдельную страницу. Шапка и подвал общие.",
+   "fields": [
+    {
+     "key": "slug",
+     "label": "Адрес страницы (латиница, цифры, дефис)",
+     "type": "text",
+     "required": true,
+     "max": 60,
+     "help": "Например tarify — страница будет по адресу drevo-zhizny.ru/tarify/"
+    },
+    {
+     "key": "page_title",
+     "label": "Заголовок страницы (вкладка браузера и поиск)",
+     "type": "text",
+     "required": true,
+     "max": 200
+    },
+    {
+     "key": "page_description",
+     "label": "Описание страницы для поиска",
+     "type": "textarea",
+     "max": 400
     }
    ]
   },

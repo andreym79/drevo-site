@@ -98,22 +98,47 @@ def main():
 
     def resolve(value):
         m = re.fullmatch(r"asset:([0-9a-f-]{36})", value or "")
-        return f"images/cms/{m.group(1)}.webp" if m else value
+        if m:
+            return f"/images/cms/{m.group(1)}.webp"
+        return "/" + (value or "").lstrip("/")   # от корня сайта: работает и на внутренних страницах
 
-    html = build.render(content, resolve)
-    index = os.path.join(WEBROOT, "index.html")
-    try:
-        with open(index, encoding="utf-8") as fh:
-            if fh.read() == html:
-                return 0
-    except OSError:
-        pass
-    tmp = index + ".tmp"
-    with open(tmp, "w", encoding="utf-8") as fh:
-        fh.write(html)
-    os.chmod(tmp, 0o644)
-    os.replace(tmp, index)
-    log(f"Сайт обновлён (версия {published.get('version')})")
+    pages = build.render_site(content, resolve)
+    changed = []
+    for slug, html in pages.items():
+        folder = os.path.join(WEBROOT, slug) if slug else WEBROOT
+        index = os.path.join(folder, "index.html")
+        try:
+            with open(index, encoding="utf-8") as fh:
+                if fh.read() == html:
+                    continue
+        except OSError:
+            pass
+        os.makedirs(folder, exist_ok=True)
+        os.chmod(folder, 0o755)
+        tmp = index + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as fh:
+            fh.write(html)
+        os.chmod(tmp, 0o644)
+        os.replace(tmp, index)
+        changed.append("/" + slug if slug else "/")
+
+    # страницы, которые убрали в редакторе, удаляем (только те, что создали мы)
+    old_slugs = set(state.get("pages", []))
+    new_slugs = {s for s in pages if s}
+    for slug in old_slugs - new_slugs:
+        folder = os.path.join(WEBROOT, slug)
+        try:
+            os.remove(os.path.join(folder, "index.html"))
+            os.rmdir(folder)
+            changed.append(f"удалена /{slug}")
+        except OSError:
+            pass
+    if old_slugs != new_slugs:
+        state["pages"] = sorted(new_slugs)
+        save_state(state)
+
+    if changed:
+        log(f"Сайт обновлён (версия {published.get('version')}): {', '.join(changed)}")
     return 0
 
 
