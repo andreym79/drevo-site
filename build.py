@@ -82,10 +82,10 @@ def header(d, img):
     tag = f'<span style="font-size: 14px; color: #55607A">{e(d["tagline"])}</span>' if g(d, "tagline") else ""
     return f"""<header style="background: #FAF6EF; border-bottom: 1px solid #E8DFD0">
 <div style="max-width: 1200px; margin: 0 auto; padding: 18px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
-<div style="display: flex; align-items: center; gap: 12px">
+<a href="/" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 12px">
 <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="#1B2A4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="20" cy="15" r="11"></circle><path d="M20 26v10M14 36h12M20 26l-5-6M20 22l5-5"></path></svg>
 <div style="display: flex; flex-direction: column; line-height: 1.2"><span style="font-weight: 800; font-size: 22px; color: #1B2A4A">{e(g(d, "brand"))}</span>{tag}</div>
-</div>
+</a>
 <nav style="display: flex; flex-wrap: wrap; align-items: center; gap: 20px; font-size: 16px; font-weight: 600">{nav}</nav>
 </div>
 </header>"""
@@ -403,14 +403,14 @@ RENDERERS = {
 
 
 def page_intro(d, img):
-    sub = f'<p style="margin: 0; font-size: 20px; color: #D6DCEA; max-width: 720px">{e(d["subtitle"])}</p>' if g(d, "subtitle") else ""
+    sub = f'<p style="margin: 0; font-size: 24px; line-height: 1.5; color: #D6DCEA; max-width: 640px">{e(d["subtitle"])}</p>' if g(d, "subtitle") else ""
     photo = ""
     if g(d, "photo"):
-        photo = f'<div class="hero-photo" style="flex: 1 1 340px; min-width: 0; height: 360px; border-radius: 28px; overflow: hidden; background: #2C3D63"><img src="{e(img(d["photo"]))}" alt="{e(g(d, "photo_alt"))}" style="width: 100%; height: 100%; object-fit: cover; object-position: center 40%; display: block"></div>'
+        photo = f'<div class="hero-photo" style="flex: 1 1 420px; min-width: 0; height: 480px; border-radius: 28px; overflow: hidden; background: #2C3D63"><img src="{e(img(d["photo"]))}" alt="{e(g(d, "photo_alt"))}" style="width: 100%; height: 100%; object-fit: cover; object-position: center 40%; display: block"></div>'
     return f"""<section style="background: #1B2A4A; color: #FFFFFF">
-<div style="max-width: 1200px; margin: 0 auto; padding: 64px 24px; display: flex; flex-wrap: wrap; gap: 48px; align-items: center">
-<div style="flex: 999 1 460px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
-<h1 style="margin: 0; font-size: 48px; line-height: 1.15; font-weight: 800; letter-spacing: -0.02em">{e(g(d, "title"))}</h1>
+<div style="max-width: 1200px; margin: 0 auto; padding: 80px 24px; display: flex; flex-wrap: wrap; gap: 56px; align-items: center">
+<div style="flex: 1 1 460px; min-width: 0; display: flex; flex-direction: column; gap: 24px">
+<h1 style="margin: 0; font-size: 64px; line-height: 1.08; font-weight: 800; letter-spacing: -0.02em">{e(g(d, "title"))}</h1>
 {sub}
 </div>
 {photo}
@@ -445,8 +445,137 @@ def text_block(d, img):
 </section>"""
 
 
-RENDERERS.update({"page_intro": page_intro, "text": text_block})
+CHECK = f'<svg {SVG.format(s=20, c="#E8833A")} style="flex: none; margin-top: 4px"><path d="M5 12l5 5L20 7"></path></svg>'
 
+
+def tariffs(d, img):
+    head = f'<h2 style="margin: 0; font-size: 40px; line-height: 1.2; font-weight: 800; color: #1B2A4A">{e(g(d, "title"))}</h2>'
+    sub = f'<p style="margin: 0; color: #55607A">{e(d["subtitle"])}</p>' if g(d, "subtitle") else ""
+    chooser = ""
+    if lst(d, "chooser"):
+        cards = "".join(
+            f'<div style="background: #FFFFFF; border-radius: 16px; padding: 18px 22px; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 16px; color: #55607A">{e(i.get("question"))}</span><span style="font-weight: 800; font-size: 18px; color: #1B2A4A">→ {e(i.get("answer"))}</span></div>'
+            for i in lst(d, "chooser"))
+        chooser = f"""<div style="display: flex; flex-direction: column; gap: 14px">
+<h3 style="margin: 0; font-size: 22px; color: #1B2A4A">{e(g(d, "chooser_title") or "Не знаете, что выбрать?")}</h3>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px">{cards}</div>
+</div>"""
+    packs = []
+    for p in lst(d, "items"):
+        hl = bool(p.get("badge"))
+        border = "3px solid #1B2A4A" if hl else "2px solid #E8DFD0"
+        badge = f'<span style="position: absolute; top: -16px; left: 24px; background: #E8833A; color: #1B2A4A; font-size: 14px; font-weight: 800; padding: 4px 14px; border-radius: 999px">{e(p["badge"])}</span>' if hl else ""
+        period = f'<span style="font-size: 15px; font-weight: 600; color: #55607A">{e(p["period"])}</span>' if p.get("period") else ""
+        tag = f'<p style="margin: 0; font-size: 18px; line-height: 1.4; font-weight: 700; color: #1B2A4A">{e(p["tagline"])}</p>' if p.get("tagline") else ""
+        aud = f'<p style="margin: 0; font-size: 16px; color: #3A4256"><strong style="color: #1B2A4A">Для кого:</strong> {e(p["audience"])}</p>' if p.get("audience") else ""
+        lis = "".join(f'<li style="display: flex; gap: 10px">{CHECK}<span>{e(x.get("text"))}</span></li>' for x in lst(p, "bullets"))
+        ul = f'<ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 17px; color: #3A4256">{lis}</ul>' if lis else ""
+        res = f'<div style="background: #FAF6EF; border-left: 4px solid #E8833A; border-radius: 12px; padding: 14px 16px; font-size: 16px; font-weight: 600; color: #1B2A4A">{e(p["result"])}</div>' if p.get("result") else ""
+        btn = ""
+        if p.get("btn_label"):
+            st = "background: #E8833A; color: #1B2A4A" if hl else "background: #1B2A4A; color: #FFFFFF"
+            btn = f'<div style="margin-top: auto; padding-top: 8px">{link(p.get("btn_url") or "#", f"text-decoration: none; {st}; padding: 14px 24px; border-radius: 999px; font-weight: 800; justify-content: center; width: 100%; " + BTN.split("; ", 1)[1], e(p["btn_label"]))}</div>'
+        packs.append(f"""<div style="background: #FFFFFF; border: {border}; border-radius: 24px; padding: 32px; display: flex; flex-direction: column; gap: 14px; position: relative">
+{badge}<span style="font-size: 52px; font-weight: 800; color: #1B2A4A; line-height: 1">{e(p.get("price"))}</span>
+{period}
+<h3 style="margin: 0; font-size: 24px; color: #1B2A4A">{e(p.get("name"))}</h3>
+{tag}
+{aud}
+{ul}
+{res}
+{btn}
+</div>""")
+    note = f'<p style="margin: 0; font-size: 18px; color: #3A4256">{e(d["note"])}</p>' if g(d, "note") else ""
+    btns = []
+    for i in lst(d, "buttons"):
+        s = i.get("style")
+        base = {"outline": "border: 2px solid #1B2A4A; color: #1B2A4A; padding: 14px 26px; font-weight: 700",
+                "dark": "background: #1B2A4A; color: #FFFFFF; padding: 16px 28px; font-weight: 700"}.get(s, "background: #E8833A; color: #1B2A4A; padding: 16px 28px; font-weight: 800")
+        btns.append(link(i.get("url"), f"text-decoration: none; {base}; border-radius: 999px; " + BTN.split("; ", 1)[1], e(i.get("label"))))
+    bottom = f'<div style="display: flex; flex-wrap: wrap; gap: 12px">{"".join(btns)}</div>' if btns else ""
+    return f"""<section id="prices">
+<div style="max-width: 1200px; margin: 0 auto; padding: 96px 24px; display: flex; flex-direction: column; gap: 40px">
+<div style="display: flex; flex-direction: column; gap: 12px">
+{head}
+{sub}
+</div>
+{chooser}
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(480px, 100%), 1fr)); gap: 28px; align-items: stretch">
+{chr(10).join(packs)}
+</div>
+{note}
+{bottom}
+</div>
+</section>"""
+
+
+# ───────────── цвет блока ─────────────
+NAVY_TEXT = "#1B2A4A"
+THEMES = {  # название в редакторе: (цвет фона, тёмный ли)
+    "Кремовый": ("#FAF6EF", False), "Белый": ("#FFFFFF", False), "Голубой": ("#E3ECF7", False),
+    "Песочный": ("#F3E3C3", False), "Зелёный": ("#E4EFE4", False), "Персиковый": ("#FBE8D8", False),
+    "Тёмно-синий": ("#1B2A4A", True),
+}
+BG_OPTIONS = ["Как сейчас"] + list(THEMES)
+DARK_DEFAULT = {"hero", "selection", "contacts", "page_intro"}
+ORANGE = "background: #E8833A; color: #1B2A4A"
+
+
+def _light_to_dark(h):
+    h = h.replace(ORANGE, "\0ORANGE\0")
+    for a, c in (("color: #1B2A4A", "color: #FFFFFF"), ("color: #3A4256", "color: #D6DCEA"), ("color: #55607A", "color: #B9C2D6")):
+        h = h.replace(a, c)
+    h = h.replace("background: #FFFFFF", "background: #24365C").replace("background: #FAF6EF", "background: #24365C")
+    h = h.replace("border: 2px solid #E8DFD0", "border: 2px solid #3A4C75").replace("border: 3px solid #1B2A4A", "border: 3px solid #FFFFFF")
+    h = h.replace("border: 2px solid #1B2A4A", "border: 2px solid #FFFFFF")
+    h = h.replace("background: #1B2A4A; color: #FFFFFF; border-radius: 24px", "background: #24365C; color: #FFFFFF; border-radius: 24px")
+    h = h.replace("background: #1B2A4A; padding: 14px", "background: #0F1A30; padding: 14px")
+    h = h.replace("background: #1B2A4A; color: #FFFFFF", "background: #FFFFFF; color: #1B2A4A")
+    return h.replace("\0ORANGE\0", ORANGE)
+
+
+def _dark_to_light(h):
+    h = h.replace(ORANGE, "\0ORANGE\0")
+    for a, c in (("color: #FFFFFF", "color: #1B2A4A"), ("color: #D6DCEA", "color: #3A4256"), ("color: #B9C2D6", "color: #55607A"),
+                 ("color: #E3E8F2", "color: #3A4256"), ("border: 2px solid #FFFFFF", "border: 2px solid #1B2A4A"),
+                 ('stroke="#FFFFFF"', 'stroke="#1B2A4A"'), ("background: #24365C", "background: #FFFFFF"),
+                 ("background: #152238", "background: #EDE5D6"), ("background: rgba(255,255,255,0.12)", "background: rgba(27,42,74,0.08)")):
+        h = h.replace(a, c)
+    return h.replace("\0ORANGE\0", ORANGE)
+
+
+def apply_style(btype, html, data):
+    """Цвет фона блока (bg) и якорь для ссылок (anchor)."""
+    m = re.search(r"<section\b[^>]*>", html)
+    if not m:
+        return html
+    tag, rest, theme = m.group(0), html[m.end():], g(data, "bg")
+    if theme in THEMES:
+        color, dark = THEMES[theme]
+        default_dark = btype in DARK_DEFAULT
+        if dark and not default_dark:
+            rest = _light_to_dark(rest)
+        elif not dark and default_dark:
+            rest = _dark_to_light(rest)
+        if not dark and not default_dark:
+            # карточки внутри должны отличаться от фона
+            if color == "#FFFFFF":
+                rest = rest.replace("background: #FFFFFF", "background: #FAF6EF")
+            elif color == "#FAF6EF" and btype == "steps":
+                rest = rest.replace("background: #FAF6EF", "background: #FFFFFF")
+        style = f"background: {color}; color: {'#FFFFFF' if dark else NAVY_TEXT}" if (dark or default_dark) else f"background: {color}"
+        if 'style="' in tag:
+            tag = re.sub(r'style="[^"]*"', f'style="{style}"', tag, count=1)
+        else:
+            tag = tag[:-1] + f' style="{style}">'
+    anchor = re.sub(r"[^a-z0-9_-]", "", g(data, "anchor").lower())
+    if anchor:
+        tag = re.sub(r'\sid="[^"]*"', "", tag, count=1)
+        tag = tag[:-1] + f' id="{anchor}">'
+    return tag + rest
+
+
+RENDERERS.update({"page_intro": page_intro, "text": text_block, "tariffs": tariffs})
 SLUG = re.compile(r"^[a-z0-9][a-z0-9-]{0,59}$")
 RESERVED = {"images", "assets", "static"}
 ANCHORS = ("how", "prices", "faq", "contacts")
@@ -476,12 +605,12 @@ def _dedupe_ids(html):
 def _page_html(head_data, header_block, footer_block, blocks, img, is_main):
     def data(b):
         d = b.get("data") or {}
-        return d if is_main else _fix_anchor_links(d)
+        return d if is_main or b["type"] not in ("header", "footer") else _fix_anchor_links(d)
     parts = [HEAD.format(title=e(g(head_data, "page_title") or g(head_data, "brand")), description=e(g(head_data, "page_description")))]
     if header_block:
         parts.append(header(data(header_block), img))
     for b in blocks:
-        parts.append(RENDERERS[b["type"]](data(b), img))
+        parts.append(apply_style(b["type"], RENDERERS[b["type"]](data(b), img), data(b)))
     if footer_block:
         parts.append(footer(data(footer_block), img))
     return _dedupe_ids("\n\n".join(parts)) + TAIL

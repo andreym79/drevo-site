@@ -12,6 +12,7 @@ def lst(key, label, item_label, fields, **kw):
     return f(key, label, "list", itemLabel=item_label, fields=fields, **kw)
 
 
+BG_OPTIONS = ["Как сейчас", "Кремовый", "Белый", "Голубой", "Песочный", "Зелёный", "Персиковый", "Тёмно-синий"]
 ICONS = ["chat", "cart", "building", "phone", "home", "museum", "check"]
 
 blocks = [
@@ -310,6 +311,40 @@ initial = [
         "copyright": "© Древо жизни · [Юрлицо]",
         "links": [{"label": "Оферта", "url": "#"}, {"label": "Политика конфиденциальности", "url": "#"}, {"label": "Согласие на обработку данных", "url": "#"}]}),
 ]
+
+blocks.insert(blocks.index(next(b for b in blocks if b["type"] == "page_intro")) , {
+    "type": "tariffs", "label": "Тарифы — карточки пакетов",
+    "help": "Крупные карточки пакетов с описанием «для кого», списком и кнопкой; сверху подсказка «что выбрать», снизу кнопки.",
+    "fields": [
+        f("title", "Заголовок", required=True, max=120),
+        f("subtitle", "Подзаголовок", "textarea", max=400),
+        f("chooser_title", "Подсказка выбора: заголовок", max=100),
+        lst("chooser", "Подсказка выбора", "Вопрос", [
+            f("question", "Вопрос", required=True, max=120), f("answer", "Подходит пакет", required=True, max=100)], maxItems=5),
+        lst("items", "Пакеты", "Пакет", [
+            f("price", "Цена (крупно)", required=True, max=20),
+            f("period", "Строка под ценой (сколько визитов)", max=120),
+            f("name", "Название пакета", required=True, max=80),
+            f("tagline", "Короткая фраза-лозунг", "textarea", max=200),
+            f("audience", "Для кого", "textarea", max=400),
+            lst("bullets", "Что входит", "Пункт", [f("text", "Текст", required=True, max=200)], maxItems=8),
+            f("result", "Главная выгода (выделенная строка)", "textarea", max=250),
+            f("badge", "Ярлык (если заполнен — карточка выделяется)", max=40),
+            f("btn_label", "Кнопка: текст", max=60),
+            f("btn_url", "Кнопка: ссылка", "url"),
+        ], maxItems=6),
+        f("note", "Строка под карточками", "textarea", max=300),
+        lst("buttons", "Кнопки внизу", "Кнопка", [
+            f("label", "Текст", required=True, max=60), f("url", "Ссылка", "url", required=True),
+            f("style", "Вид", "select", options=["primary", "dark", "outline"], help="primary — оранжевая, dark — тёмная, outline — с рамкой"),
+        ], maxItems=5),
+    ]})
+for b in blocks:
+    if b["type"] not in ("header", "footer", "page"):
+        b["fields"] += [
+            f("bg", "Цвет фона блока", "select", options=BG_OPTIONS, help="«Как сейчас» — стандартный цвет блока"),
+            f("anchor", "Якорь для ссылок (латиница)", max=30, help="Например znakomstvo — тогда на блок можно сослаться ссылкой #znakomstvo"),
+        ]
 
 schema = {"blocks": blocks, "initial": {"blocks": [{"type": t, "data": d} for t, d in initial]}}
 with open("schema.json", "w", encoding="utf-8") as fh:
